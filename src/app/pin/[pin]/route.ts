@@ -4,8 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params: { pin } }: { params: { pin: string } }
+  { params }: { params: Promise<{ pin: string }> }
 ) {
+  const { pin } = await params;
   const userData = cacheInstance.get<UserData>(pin.toLocaleLowerCase());
 
   if (!userData) {

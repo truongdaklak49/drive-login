@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const body = await req.formData();
   const { provider } = formDataToJson(body);
 
-  const owner = getIp() ?? "127.0.0.1";
+  const owner = await getIp() ?? "127.0.0.1";
 
   const password = generatePassword(128);
 
