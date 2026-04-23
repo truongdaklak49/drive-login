@@ -1,17 +1,19 @@
 "use server";
 
+import { UserData } from "@/type";
+
 export async function getGoogleAuthUrl(
   pin: string,
   redirectUri: string,
-  clientId?: string,
-  clientSecret?: string
 ) {
+  const userData = cacheInstance.get<UserData>(pin.toLowerCase());
+
   const params = new URLSearchParams();
-  const state = clientId ? `${pin}|${clientId}|${clientSecret}` : pin;
+  const state = pin;
 
   params.append(
     "client_id",
-    clientId ?? (process.env.GOOGLE_CLIENT_ID as string)
+    userData?.clientId ?? (process.env.GOOGLE_CLIENT_ID as string)
   );
   params.append("redirect_uri", redirectUri);
   params.append("state", state);

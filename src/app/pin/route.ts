@@ -9,7 +9,7 @@ import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   const body = await req.formData();
-  const { provider } = formDataToJson(body);
+  const { provider, client_id: clientId, client_secret: clientSecret } = formDataToJson(body);
 
   const owner = await getIp() ?? "127.0.0.1";
 
@@ -28,6 +28,8 @@ export async function POST(req: NextRequest) {
     password: encodeCredentials(owner, password),
     provider,
     owner,
+    clientId,
+    clientSecret,
   };
 
   cacheInstance.set(pin, data, 120);

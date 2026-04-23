@@ -13,4 +13,6 @@ export type UserData = {
     pin: string,
     provider?: string,
     token?: Token,
+    clientId?: string,
+    clientSecret?: string,
 }
