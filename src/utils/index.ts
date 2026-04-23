@@ -1,9 +1,9 @@
-function generateRandomString(length: number, characters: string) {
+export function generateRandomString(length: number, characters: string) {
+  const array = new Uint32Array(length);
+  crypto.getRandomValues(array);
   let password = "";
   for (let i = 0; i < length; i++) {
-    password += characters.charAt(
-      Math.floor(Math.random() * characters.length)
-    );
+    password += characters.charAt(array[i] % characters.length);
   }
   return password;
 }

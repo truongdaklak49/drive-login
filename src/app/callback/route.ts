@@ -5,19 +5,27 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
-  const [pin, clientId, clientSecret] = searchParams
-    .get("state")
-    ?.split("|") as string[];
+  const pin = searchParams.get("state");
+  if (!pin) {
+    return NextResponse.redirect(`${request.nextUrl.origin}/?error=invalid_state`);
+  }
+
   const code = searchParams.get("code") as string;
   const scope = searchParams.get("scope") as string;
   const redirect_uri = `${request.nextUrl.origin}/callback`;
 
+  const userData = cacheInstance.get<UserData>(pin.toLowerCase());
+
+  if (!userData) {
+    return NextResponse.redirect(`${request.nextUrl.origin}/?error=expired`);
+  }
+
   const { data: token } = await axios.post<Token>(
     "https://oauth2.googleapis.com/token",
     {
-      client_id: clientId ?? (process.env.GOOGLE_CLIENT_ID as string),
+      client_id: userData.clientId ?? (process.env.GOOGLE_CLIENT_ID as string),
       client_secret:
-        clientSecret ?? (process.env.GOOGLE_CLIENT_SECRET as string),
+        userData.clientSecret ?? (process.env.GOOGLE_CLIENT_SECRET as string),
       grant_type: "authorization_code",
       redirect_uri,
       code,
@@ -28,8 +36,6 @@ export async function GET(request: NextRequest) {
   if (!token) {
     return NextResponse.redirect("/");
   }
-
-  const userData = cacheInstance.get(pin.toLowerCase()) as UserData;
 
   const newUserData = {
     ...userData,

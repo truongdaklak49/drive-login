@@ -24,12 +24,26 @@ export async function GET(
   }
 
   const [, authBasis] = auth?.split(" ");
-  const { password } = decodeCredentials(authBasis);
+  const { owner, password } = decodeCredentials(authBasis);
 
-  if (userData.password !== password) {
+  // userData.password is the encoded credentials string "owner:password"
+  // we need to decode it or compare it properly.
+  // Actually, src/app/pin/route.ts sets:
+  // password: encodeCredentials(owner, password)
+  // So userData.password IS the base64 string.
+
+  // To be safe and correct, let's decode the stored one too or compare the base64
+  if (userData.password !== authBasis) {
     return Response.json("", {
       status: 403,
     });
+  }
+
+  // Also verify IP if owner was set
+  if (userData.owner && userData.owner !== owner) {
+      return Response.json("", {
+          status: 403,
+      })
   }
 
   if (!userData.token) {
