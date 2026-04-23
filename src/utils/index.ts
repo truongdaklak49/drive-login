@@ -10,7 +10,7 @@ export function generateRandomString(length: number, characters: string) {
 
 export function generatePassword(length: number) {
   const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}|:<>?-=[];,.";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}|<>?-=[];,.";
   return generateRandomString(length, characters);
 }
 
@@ -25,7 +25,12 @@ export function encodeCredentials(owner: string, password: string) {
 
 export function decodeCredentials(credentials: string) {
   const decoded = Buffer.from(credentials, "base64").toString("utf8");
-  const [owner, password] = decoded.split(":");
+  const lastColonIndex = decoded.lastIndexOf(":");
+  if (lastColonIndex === -1) {
+    return { owner: decoded, password: "" };
+  }
+  const owner = decoded.substring(0, lastColonIndex);
+  const password = decoded.substring(lastColonIndex + 1);
   return { owner, password };
 }
 
